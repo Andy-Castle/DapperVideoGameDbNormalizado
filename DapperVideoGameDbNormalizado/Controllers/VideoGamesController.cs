@@ -68,5 +68,17 @@ namespace DapperVideoGameDbNormalizado.Controllers
             await _videoGameRepository.UpdateVideoGameAsyncs(videoGame);
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteVideoGame(int id)
+        {
+            var existingVideoGame = await _videoGameRepository.GetVideoGameAsync(id);
+            if (existingVideoGame == null)
+            {
+                return NotFound();
+            }
+            await _videoGameRepository.DeleteVideoGameAsync(id);
+            return NoContent();
+        }
     }
 }

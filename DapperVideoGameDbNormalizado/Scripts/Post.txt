@@ -1,43 +1,51 @@
 {
-  "title": "Hollow Knight",
-  "Publisher": {
-    "Name": "Team Cherry"
+  "id": 12,
+  "title": "Halo Reach",
+  "publisherId": 0,
+  "developerId": 0,
+  "releaseDate": "2011-02-24T00:00:00",
+  "publisher": {
+    "id": 0,
+    "name": "Microsoft"
   },
-  "Developer": {
-    "Name": "Team Cherry"
+  "developer": {
+    "id": 0,
+    "name": "Bungie"
   },
-  "ReleaseDate": "2017-02-24",
-  "GameDetail": {
-    "Description": "Un videojuego de un insecto",
-    "Rating": "T"
+  "gameDetail": {
+    "videoGameId": 12,
+    "description": "Un videojuego que trata sobre la caida de reach",
+    "rating": "T",
+    "videoGame": null
   },
-  "Reviews": [
+  "reviews": [
     {
-      "ReviewerName": "Knight",
-      "Content": "Un juego increíble con una buena atmósfera y buen gameplay",
-      "Rating": 9
+      "id": 0,
+      "videoGameId": 12,
+      "reviewerName": "Jhon-117",
+      "content": "Chin casi nos matan a todos",
+      "rating": 10,
+      "videoGame": null
     },
     {
-      "ReviewerName": "Hornet",
-      "Content": "Un mundo hermoso con una exploración increíble",
-      "Rating": 10
+      "id": 0,
+      "videoGameId": 12,
+      "reviewerName": "Noble 6",
+      "content": "Aqui sigo vivo putos, vengan por mi",
+      "rating": 10,
+      "videoGame": null
     }
   ],
-  "Platforms": [
+  "platforms": [
     {
-      "Id": 4,
-      "Name": "PC",
-      "VideoGames": []
+      "id": 4,
+      "name": "PC",
+      "videoGames": []
     },
     {
-      "Id": 1,
-      "Name": "Nintendo Switch",
-      "VideoGames": []
-    },
-    {
-      "Id": 2,
-      "Name": "PlayStation 4",
-      "VideoGames": []
+      "id": 3,
+      "name": "Xbox One",
+      "videoGames": []
     }
   ]
 }
