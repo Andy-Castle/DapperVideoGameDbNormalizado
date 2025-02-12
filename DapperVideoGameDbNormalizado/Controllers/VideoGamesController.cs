@@ -29,6 +29,11 @@ namespace DapperVideoGameDbNormalizado.Controllers
         {
             var videoGame = await _videoGameRepository.GetVideoGameAsync(id);
 
+            if (videoGame == null)
+            {
+                return NotFound();
+            }
+
             return Ok(videoGame);
         }
     }
