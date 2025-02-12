@@ -86,11 +86,143 @@ namespace DapperVideoGameDbNormalizado.Repositories
             }
         }
 
-        public  Task<int> CreateVideoGameAsync(VideoGame videoGame)
+        public  async Task<int> CreateVideoGameAsync(VideoGame videoGame)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+
+                        int publisherId = await GetOrCreatePublisherAsync(connection, transaction, videoGame.Publisher.Name);
+
+                        int developerId = await GetOrCreateDeveloperAsync(connection, transaction, videoGame.Developer.Name);
+
+                        string sql = @"INSERT INTO VideoGames (Title, PublisherId, DeveloperId, ReleaseDate) 
+                                      VALUES (@Title, @PublisherId, @DeveloperId, @ReleaseDate); 
+                                      SELECT CAST(SCOPE_IDENTITY() as int);";
+
+                        var id = await connection.QuerySingleAsync<int>(sql, new
+                        {
+                            videoGame.Title,
+                            PublisherId = publisherId,
+                            DeveloperId = developerId,
+                            videoGame.ReleaseDate
+                        }, transaction);
+
+                        videoGame.Id = id;
+
+                        if (videoGame.GameDetail != null)
+                        {
+                            videoGame.GameDetail.VideoGameId = id;
+                            await CreateGameDetailAsync(connection, videoGame.GameDetail, transaction);
+                        }
+
+                        if (videoGame.Reviews != null)
+                        {
+                            foreach (var review in videoGame.Reviews)
+                            {
+                                review.VideoGameId = id;
+                                await CreateReviewAsync(connection, review, transaction);
+                            }
+                        }
+
+                        if (videoGame.Platforms != null)
+                        {
+                            foreach (var platform in videoGame.Platforms)
+                            {
+    
+                                await CreateVideoGamePlatformAsync(connection, new VideoGamePlatform
+                                {
+                                    VideoGameId = id,
+                                    PlatformId = platform.Id
+
+                                }, transaction);
+                            }
+                        }
+
+                        transaction.Commit();
+
+                        return id;
+
+
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+
+                    }
+                }
+            }
 
         }
+
+        private async Task<int> GetOrCreatePublisherAsync(SqlConnection connection, SqlTransaction transaction, string publisherName)
+        {
+            string checkSql = "SELECT Id FROM Publishers WHERE Name = @Name";
+            var existingPublisherId = await connection.QueryFirstOrDefaultAsync<int?>(checkSql, new { Name = publisherName }, transaction);
+
+            if (existingPublisherId.HasValue)
+            {
+                return existingPublisherId.Value;
+            }
+
+            string insertSql = @"INSERT INTO Publishers (Name) VALUES (@Name); 
+                                SELECT CAST(SCOPE_IDENTITY() as int) ";
+
+            var newPublisherId = await connection.QuerySingleAsync<int>(insertSql, new { Name = publisherName }, transaction);
+
+            return newPublisherId;
+        }
+
+        private async Task<int> GetOrCreateDeveloperAsync(SqlConnection connection, SqlTransaction transaction, string developerName)
+        {
+            string checkSql = "SELECT Id FROM Developers WHERE Name = @Name";
+            var existingDeveloperId = await connection.QueryFirstOrDefaultAsync<int?>(checkSql, new { Name = developerName }, transaction);
+            if (existingDeveloperId.HasValue)
+            {
+                return existingDeveloperId.Value;
+            }
+            string insertSql = @"INSERT INTO Developers (Name) VALUES (@Name); 
+                                SELECT CAST(SCOPE_IDENTITY() as int) ";
+            var newDeveloperId = await connection.QuerySingleAsync<int>(insertSql, new { Name = developerName }, transaction);
+            return newDeveloperId;
+        }
+
+        private async Task CreateGameDetailAsync(SqlConnection connection, GameDetail gameDetail, SqlTransaction transaction)
+        {
+            string sql = @"INSERT INTO GameDetails (VideoGameId, Description, Rating) 
+                           VALUES (@VideoGameId, @Description, @Rating);";
+
+            await connection.ExecuteAsync(sql, gameDetail, transaction);
+
+        }
+
+
+        private async Task CreateReviewAsync(SqlConnection connection, Review review, SqlTransaction sqlTransaction)
+        {
+            string sql = @"INSERT INTO Reviews (VideoGameId, ReviewerName, Content, Rating) 
+                          VALUES (@VideoGameId, @ReviewerName, @Content, @Rating);";
+
+            await connection.ExecuteAsync(sql, review, sqlTransaction);
+
+        }
+
+
+        private async Task CreateVideoGamePlatformAsync(SqlConnection connection, VideoGamePlatform videoGamePlatform, SqlTransaction sqlTransaction)
+        {
+
+            string sql = @"INSERT INTO VideoGamesPlatforms (VideoGameId, PlatformId) 
+                          VALUES (@VideoGameId, @PlatformId);";
+
+            await connection.ExecuteAsync(sql, videoGamePlatform, sqlTransaction);
+
+        }
+
 
         public Task UpdateVideoGameAsyncs(VideoGame videoGame)
         {
