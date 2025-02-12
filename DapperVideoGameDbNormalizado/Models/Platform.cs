@@ -6,7 +6,7 @@
         public required string Name { get; set; }
 
         //Propiedad de navegación
-        public List<VideoGame> VideoGames { get; set; }
+        public List<VideoGame>? VideoGames { get; set; }
 
     }
 }

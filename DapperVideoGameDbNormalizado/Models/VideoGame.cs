@@ -19,8 +19,8 @@
         //Propiedad de navegación
         public GameDetail? GameDetail { get; set; }
 
-        public List<Review> Reviews { get; set; }
-        public List<Platform> Platforms { get; set; }
+        public List<Review>? Reviews { get; set; }
+        public List<Platform>? Platforms { get; set; }
 
 
     }

@@ -1,0 +1,10 @@
+--Query para obtener todos los datos de un videojuego
+
+SELECT vg.*, p.*, d.*, gd.*, r.*, pf.* 
+FROM VideoGames vg
+LEFT JOIN Publishers p ON vg.PublisherId = p.Id 
+LEFT JOIN Developers d ON vg.DeveloperId = d.Id
+LEFT JOIN GameDetails gd ON vg.Id = gd.VideoGameId
+LEFT JOIN Reviews r ON vg.Id = r.VideoGameId
+LEFT JOIN VideoGamesPlatforms vgp ON vg.Id = vgp.VideoGameId
+LEFT JOIN Platforms pf ON pf.Id = vgp.PlatformId

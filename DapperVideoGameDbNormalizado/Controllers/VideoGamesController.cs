@@ -50,5 +50,23 @@ namespace DapperVideoGameDbNormalizado.Controllers
 
             return CreatedAtAction(nameof(GetOneVideoGame), new { id = createdId }, videoGame);
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateVideoGame(int id, VideoGame videoGame)
+        {
+            if (videoGame == null || videoGame.Id != id)
+            {
+                return BadRequest();
+            }
+
+            var existingVideoGame = await _videoGameRepository.GetVideoGameAsync(id);
+            if (existingVideoGame == null)
+            {
+                return NotFound();
+            }
+
+            await _videoGameRepository.UpdateVideoGameAsyncs(videoGame);
+            return NoContent();
+        }
     }
 }

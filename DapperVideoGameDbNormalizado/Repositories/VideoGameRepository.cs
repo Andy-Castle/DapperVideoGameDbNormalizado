@@ -224,15 +224,106 @@ namespace DapperVideoGameDbNormalizado.Repositories
         }
 
 
-        public Task UpdateVideoGameAsyncs(VideoGame videoGame)
+        public async Task UpdateVideoGameAsyncs(VideoGame videoGame)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+
+                        string sql = @"UPDATE VideoGames 
+                                     SET Title = @Title, PublisherId = @PublisherId, 
+                                     DeveloperId = @DeveloperId, ReleaseDate = @ReleaseDate 
+                                     WHERE Id = @Id;";
+
+                        await connection.ExecuteAsync(sql, new
+                        {
+                            videoGame.Title,
+                            videoGame.PublisherId,
+                            videoGame.DeveloperId,
+                            videoGame.ReleaseDate,
+                            videoGame.Id
+
+                        }, transaction);
+
+                        if (videoGame.GameDetail != null)
+                        {
+                            await UpdateGameDetailAsync(connection, videoGame.GameDetail, transaction);
+                        }
+
+                        if (videoGame.Reviews != null)
+                        {
+                            foreach (var review in videoGame.Reviews)
+                            {
+                              await UpdateReviewAsync(connection, review, transaction);
+                                
+                            }
+                        }
+
+                        await DeleteVideoGamePlatformsAsync(connection, videoGame.Id, transaction);
+
+                        if (videoGame.Platforms != null)
+                        {
+                            foreach (var platform in videoGame.Platforms)
+                            {
+                                await CreateVideoGamePlatformAsync(connection, new VideoGamePlatform
+                                {
+                                    VideoGameId = videoGame.Id,
+                                    PlatformId = platform.Id
+                                }, transaction);
+                            }
+                               
+                        }
+
+                        transaction.Commit();
+
+
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+
+                }
+            }
+        }
+
+        private async Task UpdateGameDetailAsync(SqlConnection connection, GameDetail gameDetail, SqlTransaction transaction)
+        {
+            string sql = @"UPDATE GameDetails SET Description = @Description, Rating = @Rating 
+                          WHERE VideoGameId = @VideoGameId;";
+            await connection.ExecuteAsync(sql, gameDetail, transaction);
+        }
+
+        private async Task UpdateReviewAsync(SqlConnection connection, Review review, SqlTransaction transaction)
+        {
+            string sql = @"UPDATE Reviews SET ReviewerName = @ReviewerName, Content = @Content, Rating = @Rating 
+                          WHERE Id = @Id;";
+            await connection.ExecuteAsync(sql, review, transaction);
+        }
+
+        private async Task UpdateVideoGamePlatformAsync(SqlConnection connection, VideoGamePlatform videoGamePlatform, SqlTransaction transaction)
+        {
+            string sql = @"UPDATE VideoGamesPlatforms SET PlatformId = @PlatformId 
+                          WHERE VideoGameId = @VideoGameId;";
+            await connection.ExecuteAsync(sql, videoGamePlatform, transaction);
         }
 
         public Task DeleteVideoGameAsync(int id)
         {
             throw new NotImplementedException();
         }
-       
+
+        private async Task DeleteVideoGamePlatformsAsync(SqlConnection connection, int videoGameId, SqlTransaction transaction)
+        {
+            string sql = @"DELETE FROM VideoGamesPlatforms WHERE VideoGameId = @VideoGameId;";
+            await connection.ExecuteAsync(sql, new { VideoGameId = videoGameId }, transaction);
+        }
+
     }
 }

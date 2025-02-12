@@ -1,0 +1,43 @@
+{
+  "title": "Hollow Knight",
+  "Publisher": {
+    "Name": "Team Cherry"
+  },
+  "Developer": {
+    "Name": "Team Cherry"
+  },
+  "ReleaseDate": "2017-02-24",
+  "GameDetail": {
+    "Description": "Un videojuego de un insecto",
+    "Rating": "T"
+  },
+  "Reviews": [
+    {
+      "ReviewerName": "Knight",
+      "Content": "Un juego increíble con una buena atmósfera y buen gameplay",
+      "Rating": 9
+    },
+    {
+      "ReviewerName": "Hornet",
+      "Content": "Un mundo hermoso con una exploración increíble",
+      "Rating": 10
+    }
+  ],
+  "Platforms": [
+    {
+      "Id": 4,
+      "Name": "PC",
+      "VideoGames": []
+    },
+    {
+      "Id": 1,
+      "Name": "Nintendo Switch",
+      "VideoGames": []
+    },
+    {
+      "Id": 2,
+      "Name": "PlayStation 4",
+      "VideoGames": []
+    }
+  ]
+}
